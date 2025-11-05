@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zufällige Katzen!</title>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a1a2e; /* Dunkler Hintergrund */
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: grid;
+            place-items: center; /* Zentriert alles */
+            min-height: 100vh;
+        }
+        #dashboard {
+            width: 90%;
+            max-width: 600px;
+            padding: 25px;
+            background-color: #2a2a4e; /* Container-Farbe */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+        h1 {
+            color: #ffffff;
+            border-bottom: 2px solid #5a5a8a;
+            padding-bottom: 10px;
+        }
+        
+        #cat-button {
+            background-color: #9fafff;
+            color: #1a1a2e;
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            margin-bottom: 20px;
+        }
+        #cat-button:hover {
+            background-color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        #cat-container {
+            /* Hält den Platz frei, damit die Seite nicht springt */
+            min-height: 400px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            overflow: hidden; /* Stellt sicher, dass das Bild im Radius bleibt */
+        }
+        
+        #cat-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #loading {
+            font-size: 1.2em;
+            color: #9fafff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dashboard">
+        <h1>Zufalls-Katzen-Generator</h1>
+        
+        <button id="cat-button">Hole eine neue Katze!</button>
+        
+        <div id="cat-container">
+            <p id="loading">Lade eine Katze...</p>
+        </div>
+    </div>
+
+    <script>
+        // Wir warten, bis die HTML-Seite komplett geladen ist
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // Die URL der Cat API (ohne Key!)
+            const apiUrl = 'https://api.thecatapi.com/v1/images/search';
+
+            // Wir holen uns die HTML-Elemente
+            const button = document.getElementById('cat-button');
+            const container = document.getElementById('cat-container');
+            const loadingText = document.getElementById('loading');
+
+            // Asynchrone Funktion, um die Daten zu holen
+            async function fetchCat() {
+                try {
+                    // 1. Lade-Text anzeigen, bevor wir die API anfragen
+                    loadingText.style.display = 'block';
+                    // Altes Bild entfernen, falls vorhanden
+                    const oldImage = document.getElementById('cat-image');
+                    if (oldImage) {
+                        oldImage.remove();
+                    }
+
+                    // 2. Die API anfragen
+                    const response = await fetch(apiUrl);
+                    const data = await response.json();
+
+                    // 3. Die URL aus der Antwort holen (ist eine Liste, wir nehmen das erste [0])
+                    const imageUrl = data[0].url;
+
+                    // 4. Lade-Text ausblenden
+                    loadingText.style.display = 'none';
+                    
+                    // 5. Ein <img> Element im JavaScript erstellen
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Eine zufällige Katze';
+                    img.id = 'cat-image'; // ID für CSS-Styling
+                    
+                    // 6. Das neue Bild in den Container einfügen
+                    container.appendChild(img);
+
+                } catch (error) {
+                    loadingText.textContent = 'Fehler beim Laden der Katze :(';
+                    console.error('Fehler beim Abrufen der Katzen-Daten:', error);
+                }
+            }
+
+            // Die Funktion beim Klick auf den Button ausführen
+            button.addEventListener('click', fetchCat);
+
+            // Und einmal direkt beim Laden der Seite ausführen
+            fetchCat();
+        });
+    </script>
+
+</body>
+</html>
